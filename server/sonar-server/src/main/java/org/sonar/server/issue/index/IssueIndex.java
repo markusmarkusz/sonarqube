@@ -595,31 +595,57 @@ public class IssueIndex {
 
     GlobalBuilder topAggreg = AggregationBuilders.global("tags");
     String tagsOnIssuesSubAggregation = "tags__issues";
-    String tagsOnRulesSubAggregation = "tags__rules";
+    /*
+     * FIXME allow tag search in issue search
+     * 
+     * String tagsOnRulesSubAggregation = "tags__rules";
+     */
 
     TermsBuilder issueTags = AggregationBuilders.terms(tagsOnIssuesSubAggregation)
       .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)
       .size(maxNumberOfTags)
       .order(Terms.Order.term(true))
       .minDocCount(1L);
-    TermsBuilder ruleTags = AggregationBuilders.terms(tagsOnRulesSubAggregation)
-      .field(RuleIndexDefinition.FIELD_RULE_ALL_TAGS)
-      .size(maxNumberOfTags)
-      .order(Terms.Order.term(true))
-      .minDocCount(1L);
+    /*
+     * FIXME allow tag search in issue search
+     * 
+     * TermsBuilder ruleTags = AggregationBuilders.terms(tagsOnRulesSubAggregation)
+     * .field(RuleIndexDefinition.FIELD_RULE_ALL_TAGS)
+     * .size(maxNumberOfTags)
+     * .order(Terms.Order.term(true))
+     * .minDocCount(1L);
+     */
     if (textQuery != null) {
       String escapedTextQuery = escapeSpecialRegexChars(textQuery);
       issueTags.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
-      ruleTags.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
+      /*
+       * FIXME allow tag search in issue search
+       * 
+       * ruleTags.include(format(SUBSTRING_MATCH_REGEXP, escapedTextQuery));
+       */
     }
 
-    SearchResponse searchResponse = requestBuilder.addAggregation(topAggreg.subAggregation(issueTags).subAggregation(ruleTags)).get();
+    SearchResponse searchResponse = requestBuilder.addAggregation(topAggreg.subAggregation(issueTags)
+    /*
+     * FIXME allow tag search in issue search
+     * 
+     * .subAggregation(ruleTags)
+     */
+    ).get();
     Global allTags = searchResponse.getAggregations().get("tags");
     SortedSet<String> result = Sets.newTreeSet();
     Terms issuesResult = allTags.getAggregations().get(tagsOnIssuesSubAggregation);
-    Terms rulesResult = allTags.getAggregations().get(tagsOnRulesSubAggregation);
+    /*
+     * FIXME allow tag search in issue search
+     * 
+     * Terms rulesResult = allTags.getAggregations().get(tagsOnRulesSubAggregation);
+     */
     result.addAll(EsUtils.termsKeys(issuesResult));
-    result.addAll(EsUtils.termsKeys(rulesResult));
+    /*
+     * FIXME allow tag search in issue search
+     *
+     * result.addAll(EsUtils.termsKeys(rulesResult));
+     */
     List<String> resultAsList = Lists.newArrayList(result);
     return resultAsList.size() > maxNumberOfTags && maxNumberOfTags > 0 ? resultAsList.subList(0, maxNumberOfTags) : resultAsList;
   }

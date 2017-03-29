@@ -20,11 +20,9 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
@@ -120,6 +118,13 @@ public class RuleActivatorMediumTest {
     RuleDto xooTemplateRule1 = newTemplateRule(TEMPLATE_RULE_KEY)
       .setSeverity("MINOR").setLanguage("xoo");
 
+    // index all rules
+    dbSession.commit();
+    ruleIndexer.indexRuleDefinitions(asList(javaRule.getDefinition().getKey()));
+    ruleIndexer.indexRuleDefinitions(asList(xooRule1.getDefinition().getKey()));
+    ruleIndexer.indexRuleDefinitions(asList(xooRule2.getDefinition().getKey()));
+    ruleIndexer.indexRuleDefinitions(asList(xooTemplateRule1.getDefinition().getKey()));
+
     // store pre-defined rules in database
     asList(javaRule, xooRule1, xooRule2, xooTemplateRule1).stream()
       .map(RuleDto::getDefinition)
@@ -144,9 +149,7 @@ public class RuleActivatorMediumTest {
     profileDto = QProfileTesting.newXooP1(organization);
     db.qualityProfileDao().insert(dbSession, profileDto);
 
-    // index all rules
     dbSession.commit();
-    ruleIndexer.index(organization, asList(javaRule, xooRule1, xooRule2, xooTemplateRule1, xooCustomRule1).stream().map(RuleDto::getKey).collect(Collectors.toList()));
   }
 
   @After
@@ -907,14 +910,12 @@ public class RuleActivatorMediumTest {
   public void bulk_activation() {
     // Generate more rules than the search's max limit
     int bulkSize = SearchOptions.MAX_LIMIT + 10;
-    List<RuleKey> keys = new ArrayList<>();
     for (int i = 0; i < bulkSize; i++) {
       RuleDefinitionDto ruleDefinitionDto = newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo").getDefinition();
       db.ruleDao().insert(dbSession, ruleDefinitionDto);
-      keys.add(ruleDefinitionDto.getKey());
+      dbSession.commit();
+      ruleIndexer.indexRuleDefinitions(asList(ruleDefinitionDto.getKey()));
     }
-    dbSession.commit();
-    ruleIndexer.index(organization, keys);
 
     // 0. No active rules so far (base case) and plenty rules available
     verifyZeroActiveRules(XOO_P1_KEY);
