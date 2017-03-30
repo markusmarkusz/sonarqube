@@ -34,26 +34,19 @@ type Props = {
   updateProfiles: () => Promise<*>
 };
 
+type ProfileInheritanceDetails = {
+  activeRuleCount: number,
+  key: string,
+  language: string,
+  name: string,
+  overridingRuleCount?: number
+};
+
 type State = {
-  ancestors?: Array<{
-    activeRuleCount: number,
-    key: string,
-    name: string,
-    overridingRuleCount?: number
-  }>,
-  children?: Array<{
-    activeRuleCount: number,
-    key: string,
-    name: string,
-    overridingRuleCount?: number
-  }>,
+  ancestors?: Array<ProfileInheritanceDetails>,
+  children?: Array<ProfileInheritanceDetails>,
   loading: boolean,
-  profile?: {
-    activeRuleCount: number,
-    key: string,
-    name: string,
-    overridingRuleCount?: number
-  }
+  profile?: ProfileInheritanceDetails
 };
 
 export default class ProfileInheritance extends React.PureComponent {

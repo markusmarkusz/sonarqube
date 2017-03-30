@@ -30,6 +30,7 @@ type Props = {
   profile: {
     activeRuleCount: number,
     key: string,
+    language: string,
     name: string,
     overridingRuleCount?: number
   }
@@ -51,7 +52,10 @@ export default class ProfileInheritanceBox extends React.PureComponent {
         <td>
           <div style={{ paddingLeft: offset }}>
             {this.props.displayLink
-              ? <ProfileLink organization={this.props.organization} profileKey={profile.key}>
+              ? <ProfileLink
+                  language={profile.language}
+                  name={profile.name}
+                  organization={this.props.organization}>
                   {profile.name}
                 </ProfileLink>
               : profile.name}

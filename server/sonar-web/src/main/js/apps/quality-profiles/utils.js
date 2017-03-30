@@ -74,15 +74,20 @@ export const getProfilesForLanguagePath = (language: string, organization: ?stri
   query: { language }
 });
 
-export const getProfilePath = (profile: string, organization: ?string) => ({
+export const getProfilePath = (name: string, language: string, organization: ?string) => ({
   pathname: organization
     ? `/organizations/${organization}/quality_profiles/show`
     : '/profiles/show',
-  query: { key: profile }
+  query: { name, language }
 });
 
-export const getProfileComparePath = (profile: string, organization: ?string, withKey?: string) => {
-  const query: Object = { key: profile };
+export const getProfileComparePath = (
+  name: string,
+  language: string,
+  organization: ?string,
+  withKey?: string
+) => {
+  const query: Object = { language, name };
   if (withKey) {
     Object.assign(query, { withKey });
   }
@@ -95,11 +100,12 @@ export const getProfileComparePath = (profile: string, organization: ?string, wi
 };
 
 export const getProfileChangelogPath = (
-  profile: string,
+  name: string,
+  language: string,
   organization: ?string,
   filter?: { since?: string, to?: string }
 ) => {
-  const query: Object = { key: profile };
+  const query: Object = { language, name };
   if (filter) {
     if (filter.since) {
       Object.assign(query, { since: filter.since });
